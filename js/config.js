@@ -8,7 +8,7 @@ window.SUPERADMIN_CONFIG = {
   // login harus diverifikasi oleh server (lihat README).
   admin: {
     username: "superadmin",
-    password: "ganti-password-ini",
+    password: "123456",
   },
 
   // Daftar aplikasi yang dikelola. Tambah satu objek per aplikasi.
