@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aplikasi - Superadmin</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar" data-active="apps"></aside>
+
+    <main class="main">
+      <h2>Aplikasi</h2>
+      <p class="subtitle">Daftar aplikasi yang dikelola. Tambah aplikasi baru lewat js/config.js.</p>
+
+      <div class="grid" id="app-list"></div>
+    </main>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/log.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/layout.js"></script>
+
+  <!-- Satu baris per aplikasi -->
+  <script src="../js/services/base.js"></script>
+  <script src="../js/services/kasir.js"></script>
+
+  <script>
+    Auth.requireLogin("../");
+    renderSidebar("../", "");
+
+    const list = document.getElementById("app-list");
+    const apps = window.SUPERADMIN_CONFIG.apps;
+
+    list.innerHTML = apps.length
+      ? apps
+          .map(
+            (a) => `
+        <div class="card app-card">
+          <span class="badge" id="status-${escapeHtml(a.id)}">Mengecek...</span>
+          <h3>${escapeHtml(a.name)}</h3>
+          <p>${escapeHtml(a.description)}</p>
+          <div class="actions">
+            <a class="btn" href="${escapeHtml(a.url)}" target="_blank" rel="noopener"
+               data-open="${escapeHtml(a.id)}">Buka</a>
+          </div>
+        </div>`
+          )
+          .join("")
+      : '<div class="empty">Belum ada aplikasi di config.js.</div>';
+
+    // Cek status tiap aplikasi
+    apps.forEach(async (a) => {
+      const svc = window.Services && window.Services[a.id];
+      const badge = document.getElementById("status-" + a.id);
+      if (!svc) {
+        badge.textContent = "Belum ada service";
+        return;
+      }
+      const up = await svc.ping();
+      badge.textContent = up ? "Online" : "Tidak terjangkau";
+      badge.className = "badge " + (up ? "ok" : "off");
+    });
+
+    // Catat ke log setiap kali aplikasi dibuka
+    list.addEventListener("click", (e) => {
+      const link = e.target.closest("[data-open]");
+      if (link) Log.add("buka_aplikasi", "Membuka aplikasi: " + link.dataset.open);
+    });
+  </script>
+</body>
+</html>
