@@ -137,6 +137,72 @@
       .main { padding: 18px; }
     }
 
+
+    /* ---------- Tampilan rapi: daftar pengguna ---------- */
+    .page-head { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap; margin-bottom:22px; }
+    .page-head .subtitle { margin-bottom:0; }
+    .section-title { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:0 0 12px; }
+    .section-title h3 { font-size:16px; }
+    .search { max-width:260px; margin:0; padding:8px 12px; font-size:13px; }
+    .card.flush { padding:0; overflow:hidden; }
+    .user-table th { background:#f9fafb; padding:12px 16px; }
+    .user-table td { padding:12px 16px; vertical-align:middle; }
+    .user-table tbody tr { transition:background .15s; }
+    .user-table tbody tr:hover { background:#f9fafb; }
+    .user-table tbody tr.selected { background:#eff6ff; }
+    .user-table tbody tr:last-child td { border-bottom:none; }
+    .user-cell { display:flex; align-items:center; gap:12px; min-width:0; }
+    .avatar { width:36px; height:36px; border-radius:50%; background:#dbeafe; color:var(--primary-dark); display:grid; place-items:center; font-weight:700; font-size:14px; flex-shrink:0; }
+    .user-email { font-weight:600; font-size:14px; word-break:break-all; }
+    .user-id { color:var(--muted); font-size:12px; font-family:ui-monospace,Menlo,Consolas,monospace; }
+    .date-cell { white-space:nowrap; color:var(--text); font-size:13px; }
+    .date-cell small { display:block; color:var(--muted); font-size:12px; }
+    .num-col { width:48px; color:var(--muted); }
+    .detail-head { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px; }
+    .detail-head > div { flex:1; min-width:200px; }
+    .detail-head select { margin-bottom:0; }
+    .who { font-size:13px; color:var(--muted); }
+    .who b { color:var(--text); }
+    .data-table th, .data-table td { white-space:nowrap; max-width:320px; overflow:hidden; text-overflow:ellipsis; }
+
+    .money { white-space:nowrap; font-weight:600; font-size:13px; text-align:right; }
+    .money.plus { color:var(--ok); }
+    .money.minus { color:var(--danger); }
+    .money.loading { color:var(--muted); font-weight:400; }
+    .sum-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:16px; }
+    .sum-box { border:1px solid var(--border); border-radius:10px; padding:12px 14px; background:#f9fafb; }
+    .sum-box .lbl { font-size:12px; color:var(--muted); }
+    .sum-box .val { font-size:20px; font-weight:700; margin-top:2px; }
+    .sum-box .det { font-size:12px; color:var(--muted); margin-top:4px; }
+    .sum-box.profit.plus { background:#f0fdf4; border-color:#bbf7d0; }
+    .sum-box.profit.plus .val { color:var(--ok); }
+    .sum-box.profit.minus { background:#fef2f2; border-color:#fecaca; }
+    .sum-box.profit.minus .val { color:var(--danger); }
+
+    /* ---------- Modal data pengguna ---------- */
+    .modal-back { position:fixed; inset:0; background:rgba(17,24,39,.55); display:flex; align-items:flex-start; justify-content:center; padding:24px 14px; overflow-y:auto; z-index:50; }
+    .modal-box { background:#fff; border-radius:14px; width:100%; max-width:980px; box-shadow:0 20px 50px rgba(0,0,0,.25); }
+    .modal-head { display:flex; align-items:center; gap:14px; padding:18px 22px; border-bottom:1px solid var(--border); }
+    .modal-head .avatar { width:44px; height:44px; font-size:17px; }
+    .modal-head .who-info { flex:1; min-width:0; }
+    .modal-head .who-info .user-email { font-size:16px; }
+    .modal-head .who-info .meta { color:var(--muted); font-size:12px; }
+    .close-btn { border:none; background:#f3f4f6; width:34px; height:34px; border-radius:50%; font-size:20px; line-height:1; cursor:pointer; color:var(--muted); flex-shrink:0; }
+    .close-btn:hover { background:#e5e7eb; color:var(--text); }
+    .modal-body { padding:20px 22px 24px; }
+    .tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; border-bottom:1px solid var(--border); }
+    .tab { border:none; background:none; padding:10px 14px; font-size:14px; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+    .tab:hover { color:var(--text); }
+    .tab.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:600; }
+    .tab .cnt { display:inline-block; background:#e5e7eb; color:var(--muted); font-size:11px; padding:1px 7px; border-radius:999px; margin-left:6px; }
+    .tab.active .cnt { background:#dbeafe; color:var(--primary-dark); }
+    .rec-wrap { border:1px solid var(--border); border-radius:10px; overflow:auto; max-height:55vh; }
+    .rec-wrap table th { position:sticky; top:0; background:#f9fafb; z-index:1; }
+    .rec-wrap td.num { text-align:right; font-variant-numeric:tabular-nums; }
+    .rec-wrap td.idc { color:var(--muted); font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12px; }
+    .rec-wrap tbody tr:last-child td { border-bottom:none; }
+    .rec-wrap tbody tr:hover { background:#f9fafb; }
+
     /* Atribut hidden harus selalu menyembunyikan elemen */
     [hidden] { display: none !important; }
   </style>
@@ -146,23 +212,47 @@
     <aside class="sidebar" id="sidebar" data-active="puyuhku"></aside>
 
     <main class="main">
-      <h2>Data Puyuhku</h2>
-      <p class="subtitle">Data dari Firebase puyuhku. Hanya untuk dilihat, tidak bisa diubah dari sini.</p>
+      <div class="page-head">
+        <div>
+          <h2>Data Puyuhku</h2>
+          <p class="subtitle">Data dari Firebase puyuhku. Hanya untuk dilihat, tidak bisa diubah dari sini.</p>
+        </div>
+      </div>
 
-      <h3 style="margin-bottom:12px">Pengguna</h3>
-      <div class="card" id="users-box" style="overflow-x:auto">
+      <div class="stats">
+        <div class="card stat"><div class="num" id="stat-total">-</div><div class="lbl">Total pengguna</div></div>
+        <div class="card stat"><div class="num" id="stat-latest" style="font-size:18px;padding:6px 0">-</div><div class="lbl">Pendaftar terbaru</div></div>
+      </div>
+
+      <div class="section-title">
+        <h3>Daftar Pengguna</h3>
+        <input class="search" id="search" type="search" placeholder="Cari email atau ID..." />
+      </div>
+      <div class="card flush" id="users-box" style="overflow-x:auto">
         <div class="empty">Memuat...</div>
       </div>
 
-      <h3 style="margin:22px 0 12px">Data per pengguna</h3>
-      <div class="card">
-        <label for="sub-name">Jenis data</label>
-        <select id="sub-name"></select>
-        <div id="detail-box" style="overflow-x:auto">
-          <div class="empty">Pilih pengguna dari daftar di atas.</div>
-        </div>
-      </div>
     </main>
+  </div>
+
+  <div class="modal-back" id="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div class="avatar" id="m-avatar">?</div>
+        <div class="who-info">
+          <div class="user-email" id="m-email"></div>
+          <div class="meta" id="m-meta"></div>
+        </div>
+        <button class="close-btn" id="m-close" aria-label="Tutup">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="summary-box"></div>
+        <div class="tabs" id="tabs"></div>
+        <div id="detail-box"><div class="empty">Memuat...</div></div>
+      </div>
+    </div>
+  </div>
+  <div hidden>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -184,13 +274,86 @@
       const usersBox = document.getElementById("users-box");
       const detailBox = document.getElementById("detail-box");
       let selectedUid = null;
+      let allUsers = [];
 
-      // Isi pilihan jenis data dari config.js (app.subcollections)
-      document.getElementById("sub-name").innerHTML = (svc.app.subcollections || [])
-        .map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`)
-        .join("");
+      // ===== PENGATURAN LABA BERSIH =====
+      // Laba bersih = total pemasukan - total pengeluaran.
+      // Isi dengan nama subkoleksi di Firebase yang dihitung.
+      const PEMASUKAN = ["penjualan"];
+      const PENGELUARAN = ["expenses"];
+      // Nama field nominal uang pada tiap dokumen (dicoba berurutan, yang pertama ada dipakai)
+      const FIELD_NOMINAL = ["total", "jumlah", "nominal", "biaya", "harga", "amount"];
+      // ==================================
 
-      // Tampilkan nilai apa pun dengan rapi (tanggal Firestore, objek, dll.)
+      const rp = (n) => (n < 0 ? "-Rp " : "Rp ") + Math.abs(Math.round(n)).toLocaleString("id-ID");
+      const finance = {}; // cache hasil hitung per uid
+
+      function nominalOf(row) {
+        for (const k of FIELD_NOMINAL) {
+          if (row[k] === undefined || row[k] === null || row[k] === "") continue;
+          const n = typeof row[k] === "number" ? row[k] : Number(String(row[k]).replace(/[^\d.-]/g, ""));
+          if (!isNaN(n)) return n;
+        }
+        return 0;
+      }
+
+      async function sumSub(uid, name) {
+        try {
+          const rows = await svc.listSub(uid, name);
+          return { name, count: rows.length, total: rows.reduce((t, r) => t + nominalOf(r), 0) };
+        } catch (e) {
+          return { name, count: 0, total: 0, error: e.message };
+        }
+      }
+
+      function calcFinance(uid) {
+        if (!finance[uid]) {
+          finance[uid] = Promise.all([
+            Promise.all(PEMASUKAN.map((n) => sumSub(uid, n))),
+            Promise.all(PENGELUARAN.map((n) => sumSub(uid, n))),
+          ]).then(([masuk, keluar]) => {
+            const pemasukan = masuk.reduce((t, x) => t + x.total, 0);
+            const pengeluaran = keluar.reduce((t, x) => t + x.total, 0);
+            return (finance[uid] = { masuk, keluar, pemasukan, pengeluaran, laba: pemasukan - pengeluaran, done: true });
+          });
+        }
+        return finance[uid];
+      }
+
+      function moneyCell(uid) {
+        const f = finance[uid];
+        return f && f.done ? escapeHtml(rp(f.laba)) : "memuat...";
+      }
+      function moneyClass(uid) {
+        const f = finance[uid];
+        if (!f || !f.done) return "loading";
+        return f.laba >= 0 ? "plus" : "minus";
+      }
+
+      async function renderSummary(uid) {
+        const box = document.getElementById("summary-box");
+        box.innerHTML = '<div class="empty" style="padding:10px 0">Menghitung laba bersih...</div>';
+        const f = await calcFinance(uid);
+        if (uid !== selectedUid) return;
+        const det = (arr) => arr.map((x) => escapeHtml(x.name) + ": " + escapeHtml(rp(x.total)) + (x.error ? " (gagal dimuat)" : "")).join(" • ");
+        box.innerHTML = `<div class="sum-grid">
+          <div class="sum-box"><div class="lbl">Pemasukan</div><div class="val">${escapeHtml(rp(f.pemasukan))}</div><div class="det">${det(f.masuk)}</div></div>
+          <div class="sum-box"><div class="lbl">Pengeluaran</div><div class="val">${escapeHtml(rp(f.pengeluaran))}</div><div class="det">${det(f.keluar)}</div></div>
+          <div class="sum-box profit ${f.laba >= 0 ? "plus" : "minus"}"><div class="lbl">Laba Bersih</div><div class="val">${escapeHtml(rp(f.laba))}</div><div class="det">Pemasukan - Pengeluaran</div></div>
+        </div>`;
+      }
+
+      const SUBS = svc.app.subcollections || [];
+
+      // ---- Helper ----
+      function toDate(v) {
+        if (v === null || v === undefined || v === "") return null;
+        if (typeof v.toDate === "function") return v.toDate();
+        if (typeof v === "object" && "seconds" in v) return new Date(v.seconds * 1000);
+        const d = new Date(v);
+        return isNaN(d) ? null : d;
+      }
+
       function fmt(v) {
         if (v === null || v === undefined) return "-";
         if (typeof v.toDate === "function") return v.toDate().toLocaleString("id-ID");
@@ -198,76 +361,177 @@
         return String(v);
       }
 
-      // Buat tabel otomatis dari daftar dokumen. actionFn opsional: kolom tombol.
-      function tableOf(rows, actionFn) {
-        const cols = ["id"];
-        rows.forEach((r) =>
-          Object.keys(r).forEach((k) => {
-            if (!cols.includes(k)) cols.push(k);
-          })
+      // Cari email & tanggal daftar dari berbagai kemungkinan nama field
+      function getEmail(u) {
+        return u.email || u.Email || u.userEmail || u.mail || "";
+      }
+      function getJoined(u) {
+        const keys = ["createdAt", "created_at", "created", "tanggalDaftar", "tglDaftar",
+                      "registeredAt", "dibuat", "joinedAt", "signupAt", "timestamp"];
+        for (const k of keys) {
+          const d = toDate(u[k]);
+          if (d) return d;
+        }
+        return null;
+      }
+
+      // Tabel catatan yang rapi: tanggal & rupiah diformat otomatis
+      const DATE_KEYS = ["date", "tanggal", "tgl", "createdAt", "created_at", "timestamp", "waktu"];
+      const prettyHead = (c) => c.replace(/_/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2");
+
+      function cellOf(col, v) {
+        if (v === null || v === undefined || v === "") return '<td>-</td>';
+        const d = (typeof v === "object" && (typeof v.toDate === "function" || "seconds" in v)) ? toDate(v) : null;
+        if (d) return `<td style="white-space:nowrap">${escapeHtml(d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }))} <span style="color:var(--muted);font-size:12px">${escapeHtml(d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }))}</span></td>`;
+        if (typeof v === "number" && FIELD_NOMINAL.includes(col)) return `<td class="num">${escapeHtml(rp(v))}</td>`;
+        if (typeof v === "number") return `<td class="num">${escapeHtml(v.toLocaleString("id-ID"))}</td>`;
+        return `<td>${escapeHtml(fmt(v))}</td>`;
+      }
+
+      function tableOf(rows) {
+        const cols = [];
+        rows.forEach((r) => Object.keys(r).forEach((k) => { if (k !== "id" && !cols.includes(k)) cols.push(k); }));
+        // Urutkan: catatan terbaru di atas (kalau ada kolom tanggal)
+        const dk = DATE_KEYS.find((k) => cols.includes(k));
+        if (dk) rows = rows.slice().sort((a, b) => (toDate(b[dk])?.getTime() || 0) - (toDate(a[dk])?.getTime() || 0));
+        return '<div class="rec-wrap"><table><thead><tr><th>#</th>' +
+          cols.map((c) => `<th>${escapeHtml(prettyHead(c))}</th>`).join("") +
+          "<th>ID</th></tr></thead><tbody>" +
+          rows.map((r, i) =>
+            `<tr><td style="color:var(--muted)">${i + 1}</td>` +
+            cols.map((c) => cellOf(c, r[c])).join("") +
+            `<td class="idc">${escapeHtml(r.id)}</td></tr>`
+          ).join("") +
+          "</tbody></table></div>";
+      }
+
+      // ---- Daftar pengguna ----
+      function renderUsers() {
+        const q = document.getElementById("search").value.trim().toLowerCase();
+        const list = allUsers.filter((u) =>
+          !q || getEmail(u).toLowerCase().includes(q) || String(u.id).toLowerCase().includes(q)
         );
-        return (
-          "<table><thead><tr>" +
-          cols.map((c) => `<th>${escapeHtml(c)}</th>`).join("") +
-          (actionFn ? "<th></th>" : "") +
+        if (!list.length) {
+          usersBox.innerHTML = '<div class="empty">' +
+            (allUsers.length ? "Tidak ada pengguna yang cocok." : "Belum ada data di subkoleksi puyuhku.") + "</div>";
+          return;
+        }
+        usersBox.innerHTML =
+          '<table class="user-table"><thead><tr>' +
+          '<th class="num-col">#</th><th>Pengguna</th><th>Tanggal Daftar</th><th style="text-align:right">Laba Bersih</th><th></th>' +
           "</tr></thead><tbody>" +
-          rows
-            .map(
-              (r) =>
-                "<tr>" +
-                cols.map((c) => `<td>${escapeHtml(fmt(r[c]))}</td>`).join("") +
-                (actionFn ? `<td>${actionFn(r)}</td>` : "") +
-                "</tr>"
-            )
-            .join("") +
-          "</tbody></table>"
-        );
+          list.map((u, i) => {
+            const email = getEmail(u);
+            const d = getJoined(u);
+            const initial = (email || u.id || "?").charAt(0).toUpperCase();
+            return `<tr class="${u.id === selectedUid ? "selected" : ""}">
+              <td class="num-col">${i + 1}</td>
+              <td><div class="user-cell">
+                <div class="avatar">${escapeHtml(initial)}</div>
+                <div>
+                  <div class="user-email">${escapeHtml(email || "(tanpa email)")}</div>
+                  <div class="user-id">${escapeHtml(u.id)}</div>
+                </div>
+              </div></td>
+              <td class="date-cell">${d
+                ? escapeHtml(d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })) +
+                  "<small>" + escapeHtml(d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })) + "</small>"
+                : "-"}</td>
+              <td class="money ${moneyClass(u.id)}">${moneyCell(u.id)}</td>
+              <td style="text-align:right"><button class="btn secondary" data-uid="${escapeHtml(u.id)}">Lihat</button></td>
+            </tr>`;
+          }).join("") +
+          "</tbody></table>";
       }
 
       async function loadUsers() {
         try {
-          const users = await svc.listUsers();
-          if (!users.length) {
-            usersBox.innerHTML =
-              '<div class="empty">Belum ada data di subkoleksi puyuhku.</div>';
-            return;
-          }
-          usersBox.innerHTML = tableOf(
-            users,
-            (u) => `<button class="btn secondary" data-uid="${escapeHtml(u.id)}">Lihat</button>`
-          );
+          allUsers = await svc.listUsers();
+          // Urutkan: yang paling baru daftar di atas
+          allUsers.sort((a, b) => (getJoined(b)?.getTime() || 0) - (getJoined(a)?.getTime() || 0));
+          document.getElementById("stat-total").textContent = allUsers.length;
+          const newest = allUsers[0];
+          document.getElementById("stat-latest").textContent =
+            newest ? (getEmail(newest) || newest.id) : "-";
+          renderUsers();
+          allUsers.forEach((u) => calcFinance(u.id).then(renderUsers));
         } catch (e) {
           usersBox.innerHTML =
             '<div class="empty">Gagal memuat: ' + escapeHtml(e.message) + "</div>";
         }
       }
 
-      async function loadDetail() {
-        const name = document.getElementById("sub-name").value.trim();
-        if (!selectedUid || !name) return;
-        detailBox.innerHTML = '<div class="empty">Memuat...</div>';
-        try {
-          const rows = await svc.listSub(selectedUid, name);
-          Log.add("lihat_data", `Melihat ${name} milik user ${selectedUid}`);
-          detailBox.innerHTML = rows.length
-            ? `<p class="subtitle">${rows.length} data di <b>${escapeHtml(name)}</b> milik ${escapeHtml(selectedUid)}</p>` +
-              tableOf(rows)
-            : '<div class="empty">Tidak ada data di subkoleksi ini.</div>';
-        } catch (e) {
-          detailBox.innerHTML =
-            '<div class="empty">Gagal memuat: ' + escapeHtml(e.message) + "</div>";
-        }
+      // ---- Detail per pengguna (muncul saat pengguna diklik) ----
+      const modal = document.getElementById("modal");
+      const subCache = {}; // uid -> { namaSub: rows }
+      let activeSub = null;
+
+      function renderTabs(uid) {
+        const data = subCache[uid] || {};
+        document.getElementById("tabs").innerHTML = SUBS.map((n) =>
+          `<button class="tab ${n === activeSub ? "active" : ""}" data-sub="${escapeHtml(n)}">${escapeHtml(n)}` +
+          `<span class="cnt">${data[n] ? (data[n].error ? "!" : data[n].rows.length) : "…"}</span></button>`
+        ).join("");
+      }
+
+      function renderRecords(uid) {
+        const box = document.getElementById("detail-box");
+        const item = (subCache[uid] || {})[activeSub];
+        if (!item) { box.innerHTML = '<div class="empty">Memuat...</div>'; return; }
+        if (item.error) { box.innerHTML = '<div class="empty">Gagal memuat: ' + escapeHtml(item.error) + "</div>"; return; }
+        box.innerHTML = item.rows.length
+          ? tableOf(item.rows)
+          : '<div class="empty">Belum ada catatan di ' + escapeHtml(activeSub) + ".</div>";
+      }
+
+      async function openUser(uid) {
+        selectedUid = uid;
+        const u = allUsers.find((x) => x.id === uid) || { id: uid };
+        const d = getJoined(u);
+        document.getElementById("m-avatar").textContent = (getEmail(u) || uid).charAt(0).toUpperCase();
+        document.getElementById("m-email").textContent = getEmail(u) || "(tanpa email)";
+        document.getElementById("m-meta").textContent =
+          "ID: " + uid + (d ? " • Daftar " + d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : "");
+        activeSub = SUBS[0] || null;
+        modal.hidden = false;
+        document.body.style.overflow = "hidden";
+        renderUsers();
+        renderSummary(uid);
+        renderTabs(uid);
+        renderRecords(uid);
+        Log.add("lihat_data", `Melihat data user ${uid}`);
+
+        if (!subCache[uid]) subCache[uid] = {};
+        await Promise.all(SUBS.map(async (n) => {
+          if (subCache[uid][n]) return;
+          try { subCache[uid][n] = { rows: await svc.listSub(uid, n) }; }
+          catch (e) { subCache[uid][n] = { rows: [], error: e.message }; }
+          if (uid === selectedUid) { renderTabs(uid); if (n === activeSub) renderRecords(uid); }
+        }));
+      }
+
+      function closeUser() {
+        modal.hidden = true;
+        document.body.style.overflow = "";
+        selectedUid = null;
+        renderUsers();
       }
 
       usersBox.addEventListener("click", (e) => {
         const btn = e.target.closest("[data-uid]");
-        if (!btn) return;
-        selectedUid = btn.dataset.uid;
-        loadDetail();
-        detailBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        if (btn) openUser(btn.dataset.uid);
       });
-
-      document.getElementById("sub-name").addEventListener("change", loadDetail);
+      document.getElementById("tabs").addEventListener("click", (e) => {
+        const t = e.target.closest("[data-sub]");
+        if (!t || !selectedUid) return;
+        activeSub = t.dataset.sub;
+        renderTabs(selectedUid);
+        renderRecords(selectedUid);
+      });
+      document.getElementById("m-close").addEventListener("click", closeUser);
+      modal.addEventListener("click", (e) => { if (e.target === modal) closeUser(); });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) closeUser(); });
+      document.getElementById("search").addEventListener("input", renderUsers);
 
       loadUsers();
     });
