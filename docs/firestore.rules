@@ -7,11 +7,22 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    // Data tiap user: hanya pemiliknya yang boleh baca/tulis, admin hanya baca
     match /users/{uid}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
       allow read: if isAdmin();
     }
 
+    // Admin membaca lintas user (collection group query) untuk daftar pengguna.
+    // Satu blok per subkoleksi; tambah blok baru kalau ada subkoleksi baru.
+    match /{path=**}/expenses/{id} {
+      allow read: if isAdmin();
+    }
+    match /{path=**}/damaged/{id} {
+      allow read: if isAdmin();
+    }
+
+    // Daftar admin: hanya bisa diubah lewat Firebase Console
     match /admins/{adminId} {
       allow read: if request.auth != null && request.auth.uid == adminId;
       allow write: if false;

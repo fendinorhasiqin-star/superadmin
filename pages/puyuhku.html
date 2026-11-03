@@ -21,8 +21,8 @@
 
       <h3 style="margin:22px 0 12px">Data per pengguna</h3>
       <div class="card">
-        <label for="sub-name">Nama subkoleksi</label>
-        <input id="sub-name" value="expenses" />
+        <label for="sub-name">Jenis data</label>
+        <select id="sub-name"></select>
         <div id="detail-box" style="overflow-x:auto">
           <div class="empty">Pilih pengguna dari daftar di atas.</div>
         </div>
@@ -49,6 +49,11 @@
       const usersBox = document.getElementById("users-box");
       const detailBox = document.getElementById("detail-box");
       let selectedUid = null;
+
+      // Isi pilihan jenis data dari config.js (app.subcollections)
+      document.getElementById("sub-name").innerHTML = (svc.app.subcollections || [])
+        .map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`)
+        .join("");
 
       // Tampilkan nilai apa pun dengan rapi (tanggal Firestore, objek, dll.)
       function fmt(v) {
@@ -89,9 +94,7 @@
           const users = await svc.listUsers();
           if (!users.length) {
             usersBox.innerHTML =
-              '<div class="empty">Tidak ada dokumen di koleksi users.<br>' +
-              "Catatan: kalau data hanya ada di subkoleksi (users/{uid}/expenses) tanpa dokumen induk, " +
-              "Firestore tidak menampilkannya di daftar ini.</div>";
+              '<div class="empty">Belum ada data di subkoleksi puyuhku.</div>';
             return;
           }
           usersBox.innerHTML = tableOf(

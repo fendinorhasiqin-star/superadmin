@@ -32,6 +32,9 @@ window.SUPERADMIN_CONFIG = {
       // Isi dengan alamat aplikasi puyuhku kalau sudah online
       url: "",
       firebase: true,
+      // Subkoleksi di bawah users/{uid}. Kalau menambah di sini,
+      // tambahkan juga aturannya di docs/firestore.rules.
+      subcollections: ["expenses", "damaged"],
     },
   ],
 };
