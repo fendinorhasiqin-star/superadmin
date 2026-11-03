@@ -2,214 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2563eb" />
   <title>Data Puyuhku - Superadmin</title>
-  <style>
-    :root {
-      --bg: #f4f6fa;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --danger: #dc2626;
-      --ok: #16a34a;
-      --border: #e5e7eb;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-    }
-
-    a { color: var(--primary); text-decoration: none; }
-
-    /* ---------- Layout ---------- */
-    .layout { display: flex; min-height: 100vh; }
-
-    .sidebar {
-      width: 230px;
-      background: #111827;
-      color: #fff;
-      padding: 20px 14px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      flex-shrink: 0;
-    }
-    .sidebar h1 { font-size: 18px; margin: 0 8px 20px; }
-    .sidebar a {
-      display: block;
-      color: #d1d5db;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-bottom: 4px;
-      font-size: 14px;
-    }
-    .sidebar a:hover, .sidebar a.active { background: #1f2937; color: #fff; }
-    .sidebar .logout { margin-top: 24px; color: #fca5a5; cursor: pointer; }
-
-    .main { flex: 1; padding: 28px; max-width: 1100px; }
-    .main h2 { font-size: 22px; margin-bottom: 4px; }
-    .subtitle { color: var(--muted); margin-bottom: 22px; font-size: 14px; }
-
-    /* ---------- Komponen ---------- */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
-    }
-
-    .app-card h3 { font-size: 16px; margin-bottom: 4px; }
-    .app-card p { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
-    .app-card .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-    .badge {
-      display: inline-block;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-    .badge.ok { background: #dcfce7; color: var(--ok); }
-    .badge.off { background: #fee2e2; color: var(--danger); }
-
-    .btn {
-      display: inline-block;
-      border: none;
-      background: var(--primary);
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .btn:hover { background: var(--primary-dark); }
-    .btn.secondary { background: #e5e7eb; color: var(--text); }
-    .btn.secondary:hover { background: #d1d5db; }
-    .btn.danger { background: var(--danger); }
-
-    input, select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 14px;
-      margin-bottom: 12px;
-      background: #fff;
-    }
-    label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
-
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
-
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 22px; }
-    .stat .num { font-size: 28px; font-weight: 700; }
-    .stat .lbl { color: var(--muted); font-size: 13px; }
-
-    .empty { color: var(--muted); text-align: center; padding: 30px 0; font-size: 14px; }
-
-    /* ---------- Login ---------- */
-    .login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 20px; }
-    .login-box { width: 100%; max-width: 380px; }
-    .login-box h1 { margin-bottom: 4px; font-size: 22px; }
-    .error { color: var(--danger); font-size: 13px; margin-bottom: 10px; min-height: 18px; }
-
-    @media (max-width: 760px) {
-      .layout { flex-direction: column; }
-      .sidebar { width: 100%; height: auto; position: static; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-      .sidebar h1 { width: 100%; }
-      .sidebar .logout { margin-top: 0; }
-      .main { padding: 18px; }
-    }
-
-
-    /* ---------- Tampilan rapi: daftar pengguna ---------- */
-    .page-head { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap; margin-bottom:22px; }
-    .page-head .subtitle { margin-bottom:0; }
-    .section-title { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:0 0 12px; }
-    .section-title h3 { font-size:16px; }
-    .search { max-width:260px; margin:0; padding:8px 12px; font-size:13px; }
-    .card.flush { padding:0; overflow:hidden; }
-    .user-table th { background:#f9fafb; padding:12px 16px; }
-    .user-table td { padding:12px 16px; vertical-align:middle; }
-    .user-table tbody tr { transition:background .15s; }
-    .user-table tbody tr:hover { background:#f9fafb; }
-    .user-table tbody tr.selected { background:#eff6ff; }
-    .user-table tbody tr:last-child td { border-bottom:none; }
-    .user-cell { display:flex; align-items:center; gap:12px; min-width:0; }
-    .avatar { width:36px; height:36px; border-radius:50%; background:#dbeafe; color:var(--primary-dark); display:grid; place-items:center; font-weight:700; font-size:14px; flex-shrink:0; }
-    .user-email { font-weight:600; font-size:14px; word-break:break-all; }
-    .user-id { color:var(--muted); font-size:12px; font-family:ui-monospace,Menlo,Consolas,monospace; }
-    .date-cell { white-space:nowrap; color:var(--text); font-size:13px; }
-    .date-cell small { display:block; color:var(--muted); font-size:12px; }
-    .num-col { width:48px; color:var(--muted); }
-    .detail-head { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px; }
-    .detail-head > div { flex:1; min-width:200px; }
-    .detail-head select { margin-bottom:0; }
-    .who { font-size:13px; color:var(--muted); }
-    .who b { color:var(--text); }
-    .data-table th, .data-table td { white-space:nowrap; max-width:320px; overflow:hidden; text-overflow:ellipsis; }
-
-    .money { white-space:nowrap; font-weight:600; font-size:13px; text-align:right; }
-    .money.plus { color:var(--ok); }
-    .money.minus { color:var(--danger); }
-    .money.loading { color:var(--muted); font-weight:400; }
-    .sum-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:16px; }
-    .sum-box { border:1px solid var(--border); border-radius:10px; padding:12px 14px; background:#f9fafb; }
-    .sum-box .lbl { font-size:12px; color:var(--muted); }
-    .sum-box .val { font-size:20px; font-weight:700; margin-top:2px; }
-    .sum-box .det { font-size:12px; color:var(--muted); margin-top:4px; }
-    .sum-box.profit.plus { background:#f0fdf4; border-color:#bbf7d0; }
-    .sum-box.profit.plus .val { color:var(--ok); }
-    .sum-box.profit.minus { background:#fef2f2; border-color:#fecaca; }
-    .sum-box.profit.minus .val { color:var(--danger); }
-
-    /* ---------- Modal data pengguna ---------- */
-    .modal-back { position:fixed; inset:0; background:rgba(17,24,39,.55); display:flex; align-items:flex-start; justify-content:center; padding:24px 14px; overflow-y:auto; z-index:50; }
-    .modal-box { background:#fff; border-radius:14px; width:100%; max-width:980px; box-shadow:0 20px 50px rgba(0,0,0,.25); }
-    .modal-head { display:flex; align-items:center; gap:14px; padding:18px 22px; border-bottom:1px solid var(--border); }
-    .modal-head .avatar { width:44px; height:44px; font-size:17px; }
-    .modal-head .who-info { flex:1; min-width:0; }
-    .modal-head .who-info .user-email { font-size:16px; }
-    .modal-head .who-info .meta { color:var(--muted); font-size:12px; }
-    .close-btn { border:none; background:#f3f4f6; width:34px; height:34px; border-radius:50%; font-size:20px; line-height:1; cursor:pointer; color:var(--muted); flex-shrink:0; }
-    .close-btn:hover { background:#e5e7eb; color:var(--text); }
-    .modal-body { padding:20px 22px 24px; }
-    .tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; border-bottom:1px solid var(--border); }
-    .tab { border:none; background:none; padding:10px 14px; font-size:14px; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
-    .tab:hover { color:var(--text); }
-    .tab.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:600; }
-    .tab .cnt { display:inline-block; background:#e5e7eb; color:var(--muted); font-size:11px; padding:1px 7px; border-radius:999px; margin-left:6px; }
-    .tab.active .cnt { background:#dbeafe; color:var(--primary-dark); }
-    .rec-wrap { border:1px solid var(--border); border-radius:10px; overflow:auto; max-height:55vh; }
-    .rec-wrap table th { position:sticky; top:0; background:#f9fafb; z-index:1; }
-    .rec-wrap td.num { text-align:right; font-variant-numeric:tabular-nums; }
-    .rec-wrap td.idc { color:var(--muted); font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12px; }
-    .rec-wrap tbody tr:last-child td { border-bottom:none; }
-    .rec-wrap tbody tr:hover { background:#f9fafb; }
-
-    /* Atribut hidden harus selalu menyembunyikan elemen */
-    [hidden] { display: none !important; }
-  </style>
+  <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
   <div class="layout">
-    <aside class="sidebar" id="sidebar" data-active="puyuhku"></aside>
+    <nav class="sidebar" id="sidebar" data-active="puyuhku"></nav>
 
     <main class="main">
       <div class="page-head">
@@ -221,14 +21,14 @@
 
       <div class="stats">
         <div class="card stat"><div class="num" id="stat-total">-</div><div class="lbl">Total pengguna</div></div>
-        <div class="card stat"><div class="num" id="stat-latest" style="font-size:18px;padding:6px 0">-</div><div class="lbl">Pendaftar terbaru</div></div>
+        <div class="card stat"><div class="num" id="stat-latest" style="font-size:15px;padding:6px 0;word-break:break-all">-</div><div class="lbl">Pendaftar terbaru</div></div>
       </div>
 
       <div class="section-title">
         <h3>Daftar Pengguna</h3>
         <input class="search" id="search" type="search" placeholder="Cari email atau ID..." />
       </div>
-      <div class="card flush" id="users-box" style="overflow-x:auto">
+      <div id="users-box">
         <div class="empty">Memuat...</div>
       </div>
 
@@ -379,30 +179,25 @@
       const DATE_KEYS = ["date", "tanggal", "tgl", "createdAt", "created_at", "timestamp", "waktu"];
       const prettyHead = (c) => c.replace(/_/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2");
 
-      function cellOf(col, v) {
-        if (v === null || v === undefined || v === "") return '<td>-</td>';
+      function rowOf(col, v) {
+        const k = `<span class="k">${escapeHtml(prettyHead(col))}</span>`;
         const d = (typeof v === "object" && (typeof v.toDate === "function" || "seconds" in v)) ? toDate(v) : null;
-        if (d) return `<td style="white-space:nowrap">${escapeHtml(d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }))} <span style="color:var(--muted);font-size:12px">${escapeHtml(d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }))}</span></td>`;
-        if (typeof v === "number" && FIELD_NOMINAL.includes(col)) return `<td class="num">${escapeHtml(rp(v))}</td>`;
-        if (typeof v === "number") return `<td class="num">${escapeHtml(v.toLocaleString("id-ID"))}</td>`;
-        return `<td>${escapeHtml(fmt(v))}</td>`;
+        if (d) return `<div class="rec-row">${k}<span class="v">${escapeHtml(d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }))}<small>${escapeHtml(d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }))}</small></span></div>`;
+        if (typeof v === "number" && FIELD_NOMINAL.includes(col)) return `<div class="rec-row">${k}<span class="v"><b>${escapeHtml(rp(v))}</b></span></div>`;
+        if (typeof v === "number") return `<div class="rec-row">${k}<span class="v">${escapeHtml(v.toLocaleString("id-ID"))}</span></div>`;
+        return `<div class="rec-row">${k}<span class="v">${escapeHtml(fmt(v))}</span></div>`;
       }
 
       function tableOf(rows) {
         const cols = [];
         rows.forEach((r) => Object.keys(r).forEach((k) => { if (k !== "id" && !cols.includes(k)) cols.push(k); }));
-        // Urutkan: catatan terbaru di atas (kalau ada kolom tanggal)
         const dk = DATE_KEYS.find((k) => cols.includes(k));
         if (dk) rows = rows.slice().sort((a, b) => (toDate(b[dk])?.getTime() || 0) - (toDate(a[dk])?.getTime() || 0));
-        return '<div class="rec-wrap"><table><thead><tr><th>#</th>' +
-          cols.map((c) => `<th>${escapeHtml(prettyHead(c))}</th>`).join("") +
-          "<th>ID</th></tr></thead><tbody>" +
-          rows.map((r, i) =>
-            `<tr><td style="color:var(--muted)">${i + 1}</td>` +
-            cols.map((c) => cellOf(c, r[c])).join("") +
-            `<td class="idc">${escapeHtml(r.id)}</td></tr>`
-          ).join("") +
-          "</tbody></table></div>";
+        return rows.map((r) =>
+          '<div class="rec-card">' +
+          cols.filter((c) => r[c] !== undefined && r[c] !== null && r[c] !== "").map((c) => rowOf(c, r[c])).join("") +
+          `<div class="rec-row idr"><span class="k">ID</span><span class="v">${escapeHtml(r.id)}</span></div></div>`
+        ).join("");
       }
 
       // ---- Daftar pengguna ----
@@ -416,32 +211,20 @@
             (allUsers.length ? "Tidak ada pengguna yang cocok." : "Belum ada data di subkoleksi puyuhku.") + "</div>";
           return;
         }
-        usersBox.innerHTML =
-          '<table class="user-table"><thead><tr>' +
-          '<th class="num-col">#</th><th>Pengguna</th><th>Tanggal Daftar</th><th style="text-align:right">Laba Bersih</th><th></th>' +
-          "</tr></thead><tbody>" +
-          list.map((u, i) => {
-            const email = getEmail(u);
-            const d = getJoined(u);
-            const initial = (email || u.id || "?").charAt(0).toUpperCase();
-            return `<tr class="${u.id === selectedUid ? "selected" : ""}">
-              <td class="num-col">${i + 1}</td>
-              <td><div class="user-cell">
-                <div class="avatar">${escapeHtml(initial)}</div>
-                <div>
-                  <div class="user-email">${escapeHtml(email || "(tanpa email)")}</div>
-                  <div class="user-id">${escapeHtml(u.id)}</div>
-                </div>
-              </div></td>
-              <td class="date-cell">${d
-                ? escapeHtml(d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })) +
-                  "<small>" + escapeHtml(d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })) + "</small>"
-                : "-"}</td>
-              <td class="money ${moneyClass(u.id)}">${moneyCell(u.id)}</td>
-              <td style="text-align:right"><button class="btn secondary" data-uid="${escapeHtml(u.id)}">Lihat</button></td>
-            </tr>`;
-          }).join("") +
-          "</tbody></table>";
+        usersBox.innerHTML = list.map((u) => {
+          const email = getEmail(u);
+          const d = getJoined(u);
+          const initial = (email || u.id || "?").charAt(0).toUpperCase();
+          return `<div class="user-card" data-uid="${escapeHtml(u.id)}">
+            <div class="avatar">${escapeHtml(initial)}</div>
+            <div class="info">
+              <div class="user-email">${escapeHtml(email || "(tanpa email)")}</div>
+              <div class="user-id">${escapeHtml(u.id)}</div>
+              <div class="user-date">${d ? "Daftar " + escapeHtml(d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })) : ""}</div>
+            </div>
+            <div class="money ${moneyClass(u.id)}">${moneyCell(u.id)}<small>laba bersih</small></div>
+          </div>`;
+        }).join("");
       }
 
       async function loadUsers() {
