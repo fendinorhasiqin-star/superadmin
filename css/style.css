@@ -129,3 +129,4 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: upp
   .sidebar .logout { margin-top: 0; }
   .main { padding: 18px; }
 }
+[hidden] { display: none !important; }
