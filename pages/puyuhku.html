@@ -215,14 +215,20 @@
           const email = getEmail(u);
           const d = getJoined(u);
           const initial = (email || u.id || "?").charAt(0).toUpperCase();
+          const chips = SUBS.filter((n) => typeof u[n] === "number")
+            .map((n) => `<span class="chip">${escapeHtml(n)} <b>${u[n]}</b></span>`).join("");
           return `<div class="user-card" data-uid="${escapeHtml(u.id)}">
-            <div class="avatar">${escapeHtml(initial)}</div>
-            <div class="info">
-              <div class="user-email">${escapeHtml(email || "(tanpa email)")}</div>
-              <div class="user-id">${escapeHtml(u.id)}</div>
-              <div class="user-date">${d ? "Daftar " + escapeHtml(d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })) : ""}</div>
+            <div class="uc-top">
+              <div class="avatar">${escapeHtml(initial)}</div>
+              <div class="info">
+                <div class="user-email">${escapeHtml(email || "(tanpa email)")}</div>
+                <div class="user-id">${escapeHtml(u.id)}</div>
+                <div class="user-date">${d ? "Daftar " + escapeHtml(d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })) : ""}</div>
+              </div>
+              <div class="money ${moneyClass(u.id)}">${moneyCell(u.id)}<small>laba bersih</small></div>
             </div>
-            <div class="money ${moneyClass(u.id)}">${moneyCell(u.id)}<small>laba bersih</small></div>
+            ${chips ? `<div class="chips">${chips}</div>` : ""}
+            <button class="btn secondary block detail-btn" data-uid="${escapeHtml(u.id)}">Lihat detail data ›</button>
           </div>`;
         }).join("");
       }
