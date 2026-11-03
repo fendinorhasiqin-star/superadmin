@@ -8,11 +8,11 @@ Login memakai Firebase Auth, data puyuhku dibaca dari Firestore.
 
 ```
 superadmin/
-├── index.html            # login + dashboard
+├── index.html            # login + dashboard (CSS ada di dalam file)
 ├── pages/
-│   ├── apps.html         # daftar aplikasi + cek status
-│   ├── puyuhku.html      # data puyuhku (Firestore, hanya baca)
-│   └── log.html          # log aktivitas
+│   ├── apps.html         # daftar aplikasi + cek status (CSS di dalam file)
+│   ├── puyuhku.html      # data puyuhku (Firestore, hanya baca) (CSS di dalam file)
+│   └── log.html          # log aktivitas (CSS di dalam file)
 ├── js/
 │   ├── config.js         # konfigurasi Firebase + daftar aplikasi
 │   ├── firebase.js       # menyalakan Firebase
@@ -24,12 +24,17 @@ superadmin/
 │       ├── kasir.js      # service aplikasi kasir
 │       ├── puyuhku.js    # service puyuhku (Firestore)
 │       └── _template.js  # template untuk aplikasi baru
-├── css/style.css
 ├── docs/
 │   ├── apps.md           # catatan daftar aplikasi
 │   └── firestore.rules   # salinan Firestore Rules
 └── .gitignore
 ```
+
+## Soal CSS
+
+Setiap halaman HTML membawa CSS-nya sendiri di dalam tag `<style>`, jadi tampilannya
+tetap utuh walau dibuka satu per satu. Kalau mengubah tampilan umum (warna, sidebar),
+ubah di keempat file: `index.html` dan tiga file di `pages/`.
 
 ## Cara menjalankan
 
