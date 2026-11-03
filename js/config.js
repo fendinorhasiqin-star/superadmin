@@ -30,7 +30,7 @@ window.SUPERADMIN_CONFIG = {
       name: "Puyuhku",
       description: "Aplikasi bisnis puyuh (Firebase Auth + Firestore).",
       // Isi dengan alamat aplikasi puyuhku kalau sudah online
-      url: "",
+      url: "fendinorhasiqin-star.github.io/bisnispuyuh",
       firebase: true,
       // Subkoleksi di bawah users/{uid}. Kalau menambah di sini,
       // tambahkan juga aturannya di docs/firestore.rules.
