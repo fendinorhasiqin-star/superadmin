@@ -1,14 +1,18 @@
-// Salin file ini menjadi js/config.js lalu isi sesuai kebutuhan.
-// js/config.js sudah masuk .gitignore, jadi tidak ikut ter-commit.
+// Konfigurasi superadmin.
+// File ini TIDAK berisi password, jadi aman di-commit.
+// Kunci Firebase memang bersifat publik (terbaca di setiap aplikasi web);
+// yang menjaga data tetap aman adalah Firestore Rules di Firebase Console.
 
 window.SUPERADMIN_CONFIG = {
-  // Akun superadmin sementara (tahap awal, tanpa backend).
-  // GANTI username & password ini sebelum dipakai.
-  // Catatan: ini hanya penghalang tampilan. Untuk keamanan sungguhan,
-  // login harus diverifikasi oleh server (lihat README).
-  admin: {
-    username: "superadmin",
-    password: "123456",
+  // Project Firebase yang dipakai superadmin (sama dengan puyuhku)
+  firebase: {
+    apiKey: "AIzaSyAEL9Av_OrHW1zt-0REnZoymXM-Qeg5zfQ",
+    authDomain: "bisnis-puyuh.firebaseapp.com",
+    projectId: "bisnis-puyuh",
+    storageBucket: "bisnis-puyuh.firebasestorage.app",
+    messagingSenderId: "226784274230",
+    appId: "1:226784274230:web:2474888a57facb56117597",
+    measurementId: "G-CZ694MG0DX",
   },
 
   // Daftar aplikasi yang dikelola. Tambah satu objek per aplikasi.
@@ -20,6 +24,14 @@ window.SUPERADMIN_CONFIG = {
       url: "https://contoh.com/kasir/home.html",
       // URL API aplikasi (kosongkan jika belum punya backend)
       api: "",
+    },
+    {
+      id: "puyuhku",
+      name: "Puyuhku",
+      description: "Aplikasi bisnis puyuh (Firebase Auth + Firestore).",
+      // Isi dengan alamat aplikasi puyuhku kalau sudah online
+      url: "",
+      firebase: true,
     },
   ],
 };

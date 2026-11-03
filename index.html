@@ -14,14 +14,14 @@
       <h1>Superadmin</h1>
       <p class="subtitle">Masuk untuk mengelola semua aplikasi.</p>
 
-      <label for="username">Username</label>
-      <input id="username" autocomplete="username" required />
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="username" required />
 
       <label for="password">Password</label>
       <input id="password" type="password" autocomplete="current-password" required />
 
       <div class="error" id="login-error"></div>
-      <button class="btn" type="submit" style="width:100%">Masuk</button>
+      <button class="btn" type="submit" id="login-btn" style="width:100%">Masuk</button>
     </form>
   </div>
 
@@ -31,7 +31,7 @@
 
     <main class="main">
       <h2>Dashboard</h2>
-      <p class="subtitle">Ringkasan semua aplikasi yang kamu kelola.</p>
+      <p class="subtitle" id="who">Ringkasan semua aplikasi yang kamu kelola.</p>
 
       <div class="stats">
         <div class="card stat">
@@ -40,7 +40,7 @@
         </div>
         <div class="card stat">
           <div class="num" id="stat-api">0</div>
-          <div class="lbl">Punya API</div>
+          <div class="lbl">Terhubung ke data</div>
         </div>
         <div class="card stat">
           <div class="num" id="stat-log">0</div>
@@ -53,7 +53,11 @@
     </main>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/firebase.js"></script>
   <script src="js/log.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/layout.js"></script>
@@ -61,15 +65,16 @@
     const loginView = document.getElementById("login-view");
     const dashView = document.getElementById("dashboard-view");
 
-    function showDashboard() {
+    function showDashboard(user) {
       loginView.hidden = true;
       dashView.hidden = false;
       renderSidebar("", "pages/");
+      document.getElementById("who").textContent = "Masuk sebagai " + user.email;
 
       const apps = window.SUPERADMIN_CONFIG.apps;
       const logs = Log.all();
       document.getElementById("stat-apps").textContent = apps.length;
-      document.getElementById("stat-api").textContent = apps.filter((a) => a.api).length;
+      document.getElementById("stat-api").textContent = apps.filter((a) => a.api || a.firebase).length;
       document.getElementById("stat-log").textContent = logs.length;
 
       const box = document.getElementById("recent-log");
@@ -89,21 +94,29 @@
       }
     }
 
-    if (Auth.session()) {
-      showDashboard();
-    } else {
-      loginView.hidden = false;
-    }
+    // Cek apakah sudah login sebelumnya
+    Auth.ready().then((user) => {
+      if (user) showDashboard(user);
+      else loginView.hidden = false;
+    });
 
-    document.getElementById("login-form").addEventListener("submit", (e) => {
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const u = document.getElementById("username").value.trim();
-      const p = document.getElementById("password").value;
-      if (Auth.login(u, p)) {
-        showDashboard();
-      } else {
-        document.getElementById("login-error").textContent = "Username atau password salah.";
-      }
+      const btn = document.getElementById("login-btn");
+      const err = document.getElementById("login-error");
+      err.textContent = "";
+      btn.disabled = true;
+      btn.textContent = "Memeriksa...";
+
+      const res = await Auth.login(
+        document.getElementById("email").value.trim(),
+        document.getElementById("password").value
+      );
+
+      btn.disabled = false;
+      btn.textContent = "Masuk";
+      if (res.ok) showDashboard(res.user);
+      else err.textContent = res.message;
     });
   </script>
 </body>

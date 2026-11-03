@@ -12,52 +12,58 @@
 
     <main class="main">
       <h2>Log Aktivitas</h2>
-      <p class="subtitle">Catatan siapa melakukan apa dan kapan.</p>
+      <p class="subtitle">Catatan siapa melakukan apa dan kapan (disimpan di browser ini).</p>
 
       <div style="margin-bottom:14px">
         <button class="btn danger" id="btn-clear">Hapus semua log</button>
       </div>
 
-      <div class="card" id="log-table"></div>
+      <div class="card" id="log-table" style="overflow-x:auto"></div>
     </main>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="../js/config.js"></script>
+  <script src="../js/firebase.js"></script>
   <script src="../js/log.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/layout.js"></script>
   <script>
-    Auth.requireLogin("../");
-    renderSidebar("../", "");
+    Auth.requireLogin("../").then((user) => {
+      if (!user) return;
+      renderSidebar("../", "");
 
-    function render() {
-      const logs = Log.all();
-      const box = document.getElementById("log-table");
-      if (!logs.length) {
-        box.innerHTML = '<div class="empty">Belum ada aktivitas.</div>';
-        return;
+      function render() {
+        const logs = Log.all();
+        const box = document.getElementById("log-table");
+        if (!logs.length) {
+          box.innerHTML = '<div class="empty">Belum ada aktivitas.</div>';
+          return;
+        }
+        box.innerHTML =
+          "<table><thead><tr><th>Waktu</th><th>Aksi</th><th>Detail</th></tr></thead><tbody>" +
+          logs
+            .map(
+              (l) =>
+                `<tr><td>${new Date(l.time).toLocaleString("id-ID")}</td>
+                 <td>${escapeHtml(l.action)}</td>
+                 <td>${escapeHtml(l.detail)}</td></tr>`
+            )
+            .join("") +
+          "</tbody></table>";
       }
-      box.innerHTML =
-        "<table><thead><tr><th>Waktu</th><th>Aksi</th><th>Detail</th></tr></thead><tbody>" +
-        logs
-          .map(
-            (l) =>
-              `<tr><td>${new Date(l.time).toLocaleString("id-ID")}</td>
-               <td>${escapeHtml(l.action)}</td>
-               <td>${escapeHtml(l.detail)}</td></tr>`
-          )
-          .join("") +
-        "</tbody></table>";
-    }
 
-    document.getElementById("btn-clear").addEventListener("click", () => {
-      if (confirm("Hapus semua log aktivitas?")) {
-        Log.clear();
-        render();
-      }
+      document.getElementById("btn-clear").addEventListener("click", () => {
+        if (confirm("Hapus semua log aktivitas?")) {
+          Log.clear();
+          render();
+        }
+      });
+
+      render();
     });
-
-    render();
   </script>
 </body>
 </html>

@@ -10,6 +10,7 @@ function renderSidebar(rootPath, pagesPath) {
   const links = [
     { key: "dashboard", label: "Dashboard", href: rootPath + "index.html" },
     { key: "apps", label: "Aplikasi", href: pagesPath + "apps.html" },
+    { key: "puyuhku", label: "Data Puyuhku", href: pagesPath + "puyuhku.html" },
     { key: "log", label: "Log Aktivitas", href: pagesPath + "log.html" },
   ];
 
@@ -23,8 +24,8 @@ function renderSidebar(rootPath, pagesPath) {
       .join("") +
     `<a class="logout" id="btn-logout">Keluar</a>`;
 
-  document.getElementById("btn-logout").addEventListener("click", () => {
-    Auth.logout();
+  document.getElementById("btn-logout").addEventListener("click", async () => {
+    await Auth.logout();
     window.location.href = rootPath + "index.html";
   });
 }

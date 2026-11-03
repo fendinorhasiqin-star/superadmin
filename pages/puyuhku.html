@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Puyuhku - Superadmin</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar" data-active="puyuhku"></aside>
+
+    <main class="main">
+      <h2>Data Puyuhku</h2>
+      <p class="subtitle">Data dari Firebase puyuhku. Hanya untuk dilihat, tidak bisa diubah dari sini.</p>
+
+      <h3 style="margin-bottom:12px">Pengguna</h3>
+      <div class="card" id="users-box" style="overflow-x:auto">
+        <div class="empty">Memuat...</div>
+      </div>
+
+      <h3 style="margin:22px 0 12px">Data per pengguna</h3>
+      <div class="card">
+        <label for="sub-name">Nama subkoleksi</label>
+        <input id="sub-name" value="expenses" />
+        <div id="detail-box" style="overflow-x:auto">
+          <div class="empty">Pilih pengguna dari daftar di atas.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/firebase.js"></script>
+  <script src="../js/log.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/services/base.js"></script>
+  <script src="../js/services/puyuhku.js"></script>
+  <script>
+    Auth.requireLogin("../").then((user) => {
+      if (!user) return;
+      renderSidebar("../", "");
+
+      const svc = window.Services.puyuhku;
+      const usersBox = document.getElementById("users-box");
+      const detailBox = document.getElementById("detail-box");
+      let selectedUid = null;
+
+      // Tampilkan nilai apa pun dengan rapi (tanggal Firestore, objek, dll.)
+      function fmt(v) {
+        if (v === null || v === undefined) return "-";
+        if (typeof v.toDate === "function") return v.toDate().toLocaleString("id-ID");
+        if (typeof v === "object") return JSON.stringify(v);
+        return String(v);
+      }
+
+      // Buat tabel otomatis dari daftar dokumen. actionFn opsional: kolom tombol.
+      function tableOf(rows, actionFn) {
+        const cols = ["id"];
+        rows.forEach((r) =>
+          Object.keys(r).forEach((k) => {
+            if (!cols.includes(k)) cols.push(k);
+          })
+        );
+        return (
+          "<table><thead><tr>" +
+          cols.map((c) => `<th>${escapeHtml(c)}</th>`).join("") +
+          (actionFn ? "<th></th>" : "") +
+          "</tr></thead><tbody>" +
+          rows
+            .map(
+              (r) =>
+                "<tr>" +
+                cols.map((c) => `<td>${escapeHtml(fmt(r[c]))}</td>`).join("") +
+                (actionFn ? `<td>${actionFn(r)}</td>` : "") +
+                "</tr>"
+            )
+            .join("") +
+          "</tbody></table>"
+        );
+      }
+
+      async function loadUsers() {
+        try {
+          const users = await svc.listUsers();
+          if (!users.length) {
+            usersBox.innerHTML =
+              '<div class="empty">Tidak ada dokumen di koleksi users.<br>' +
+              "Catatan: kalau data hanya ada di subkoleksi (users/{uid}/expenses) tanpa dokumen induk, " +
+              "Firestore tidak menampilkannya di daftar ini.</div>";
+            return;
+          }
+          usersBox.innerHTML = tableOf(
+            users,
+            (u) => `<button class="btn secondary" data-uid="${escapeHtml(u.id)}">Lihat</button>`
+          );
+        } catch (e) {
+          usersBox.innerHTML =
+            '<div class="empty">Gagal memuat: ' + escapeHtml(e.message) + "</div>";
+        }
+      }
+
+      async function loadDetail() {
+        const name = document.getElementById("sub-name").value.trim();
+        if (!selectedUid || !name) return;
+        detailBox.innerHTML = '<div class="empty">Memuat...</div>';
+        try {
+          const rows = await svc.listSub(selectedUid, name);
+          Log.add("lihat_data", `Melihat ${name} milik user ${selectedUid}`);
+          detailBox.innerHTML = rows.length
+            ? `<p class="subtitle">${rows.length} data di <b>${escapeHtml(name)}</b> milik ${escapeHtml(selectedUid)}</p>` +
+              tableOf(rows)
+            : '<div class="empty">Tidak ada data di subkoleksi ini.</div>';
+        } catch (e) {
+          detailBox.innerHTML =
+            '<div class="empty">Gagal memuat: ' + escapeHtml(e.message) + "</div>";
+        }
+      }
+
+      usersBox.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-uid]");
+        if (!btn) return;
+        selectedUid = btn.dataset.uid;
+        loadDetail();
+        detailBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+
+      document.getElementById("sub-name").addEventListener("change", loadDetail);
+
+      loadUsers();
+    });
+  </script>
+</body>
+</html>
