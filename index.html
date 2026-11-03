@@ -1,1 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Superadmin</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
 
+  <!-- ========== HALAMAN LOGIN ========== -->
+  <div class="login-wrap" id="login-view" hidden>
+    <form class="card login-box" id="login-form">
+      <h1>Superadmin</h1>
+      <p class="subtitle">Masuk untuk mengelola semua aplikasi.</p>
+
+      <label for="username">Username</label>
+      <input id="username" autocomplete="username" required />
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required />
+
+      <div class="error" id="login-error"></div>
+      <button class="btn" type="submit" style="width:100%">Masuk</button>
+    </form>
+  </div>
+
+  <!-- ========== DASHBOARD ========== -->
+  <div class="layout" id="dashboard-view" hidden>
+    <aside class="sidebar" id="sidebar" data-active="dashboard"></aside>
+
+    <main class="main">
+      <h2>Dashboard</h2>
+      <p class="subtitle">Ringkasan semua aplikasi yang kamu kelola.</p>
+
+      <div class="stats">
+        <div class="card stat">
+          <div class="num" id="stat-apps">0</div>
+          <div class="lbl">Total aplikasi</div>
+        </div>
+        <div class="card stat">
+          <div class="num" id="stat-api">0</div>
+          <div class="lbl">Punya API</div>
+        </div>
+        <div class="card stat">
+          <div class="num" id="stat-log">0</div>
+          <div class="lbl">Aktivitas tercatat</div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:12px">Aktivitas terakhir</h3>
+      <div class="card" id="recent-log"></div>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/log.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js"></script>
+  <script>
+    const loginView = document.getElementById("login-view");
+    const dashView = document.getElementById("dashboard-view");
+
+    function showDashboard() {
+      loginView.hidden = true;
+      dashView.hidden = false;
+      renderSidebar("", "pages/");
+
+      const apps = window.SUPERADMIN_CONFIG.apps;
+      const logs = Log.all();
+      document.getElementById("stat-apps").textContent = apps.length;
+      document.getElementById("stat-api").textContent = apps.filter((a) => a.api).length;
+      document.getElementById("stat-log").textContent = logs.length;
+
+      const box = document.getElementById("recent-log");
+      if (!logs.length) {
+        box.innerHTML = '<div class="empty">Belum ada aktivitas.</div>';
+      } else {
+        box.innerHTML =
+          "<table><tbody>" +
+          logs
+            .slice(0, 5)
+            .map(
+              (l) =>
+                `<tr><td>${new Date(l.time).toLocaleString("id-ID")}</td><td>${escapeHtml(l.detail)}</td></tr>`
+            )
+            .join("") +
+          "</tbody></table>";
+      }
+    }
+
+    if (Auth.session()) {
+      showDashboard();
+    } else {
+      loginView.hidden = false;
+    }
+
+    document.getElementById("login-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const u = document.getElementById("username").value.trim();
+      const p = document.getElementById("password").value;
+      if (Auth.login(u, p)) {
+        showDashboard();
+      } else {
+        document.getElementById("login-error").textContent = "Username atau password salah.";
+      }
+    });
+  </script>
+</body>
+</html>

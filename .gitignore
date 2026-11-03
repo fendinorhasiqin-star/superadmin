@@ -1,0 +1,8 @@
+# Konfigurasi berisi password & URL API, jangan di-commit
+js/config.js
+
+# Sistem
+.DS_Store
+Thumbs.db
+node_modules/
+.env
