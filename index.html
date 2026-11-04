@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Puyuhku Admin</title>
+  <title>Super Admin</title>
   <style>
     :root {
       --bg: #f5f6ef;
@@ -31,19 +31,17 @@
     a { color: var(--primary); text-decoration: none; }
 
     .sidebar { background: #193b2b; }
-    .sidebar h1 { letter-spacing: -.03em; }
+    .sidebar h1 { display: flex; align-items: center; gap: 10px; letter-spacing: .09em; font-weight: 800; }
     .sidebar h1::before {
-      content: "P";
-      display: inline-grid;
-      place-items: center;
-      width: 30px;
-      height: 30px;
-      margin-right: 9px;
-      border-radius: 10px;
-      background: #d8e9cf;
-      color: #193b2b;
-      font-size: 16px;
-      vertical-align: middle;
+      content: "";
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23193b2b' d='M3 19h18v2H3zM2.5 7.5l5 4.5L12 4l4.5 8 5-4.5L19.5 17h-15z'/%3E%3C/svg%3E") center / 22px 22px no-repeat,
+        linear-gradient(135deg, #f9e08b, #e0a030);
+      box-shadow: 0 2px 8px rgba(224, 160, 48, .35), inset 0 0 0 1px rgba(255, 255, 255, .35);
     }
     .sidebar a:hover, .sidebar a.active { background: #28533b; }
     .main h2 { letter-spacing: -.035em; }
@@ -79,7 +77,7 @@
       height: 100vh;
       flex-shrink: 0;
     }
-    .sidebar h1 { font-size: 18px; margin: 0 8px 20px; }
+    .sidebar h1 { font-size: 15px; margin: 0 8px 20px; }
     .sidebar a {
       display: block;
       color: #d1d5db;
@@ -361,6 +359,79 @@
       .rec-wrap { max-height: 52vh; }
     }
 
+
+    /* ---------- Halaman Laporan (halaman sendiri, #laporan) ---------- */
+    .report-top { margin-bottom:14px; }
+    .report-who { display:flex; align-items:center; gap:14px; margin-bottom:14px; padding:14px 18px; }
+    .report-who .avatar { width:44px; height:44px; font-size:17px; }
+    .report-who .who-info { min-width:0; }
+    .report-who .meta { color:var(--muted); font-size:12px; }
+    .report-controls { max-width:320px; margin-bottom:14px; }
+    .report-controls select { margin-bottom:6px; }
+    .report-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:12px; }
+    .report-summary .card { padding:14px 16px; }
+    .report-summary .lbl { color:var(--muted); font-size:13px; }
+    .report-summary .amount { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+    .report-summary .income .amount { color:var(--ok); }
+    .report-summary .expense .amount { color:var(--danger); }
+    .report-summary .net .amount { color:var(--primary-dark); }
+    .report-summary .recv .amount { color:#b45309; }
+    .report-summary .net { background:var(--accent); border-color:#cfe2cc; }
+    .report-note { margin-bottom:22px; }
+    .month-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+    .month-card { text-align:left; font:inherit; color:inherit; cursor:pointer; display:grid; grid-template-columns:1fr auto; gap:6px 10px; padding:14px 16px; width:100%; transition:border-color .15s, background .15s; }
+    .month-card:hover { border-color:#c9ddc8; }
+    .month-card.active { border-color:var(--primary); background:var(--accent); }
+    .month-name { font-weight:600; font-size:14px; }
+    .month-net { font-weight:700; font-size:14px; color:var(--primary-dark); text-align:right; }
+    .month-net.neg { color:var(--danger); }
+    .month-sub { grid-column:1 / -1; display:flex; justify-content:space-between; gap:4px 10px; flex-wrap:wrap; color:var(--muted); font-size:12px; }
+    .month-sub b { color:var(--text); font-weight:600; }
+    @media (max-width: 1000px) { .report-summary { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+    @media (max-width: 760px) {
+      /* Laporan di Android */
+      .report-top .btn { width:100%; }
+      .report-who { padding:12px 14px; }
+      .report-controls { max-width:none; }
+      .report-controls select { min-height:44px; }
+      .report-summary { gap:10px; }
+      .report-summary .card { padding:12px 14px; }
+      .report-summary .amount { font-size:18px; }
+      .report-summary .net, .report-summary .recv { grid-column:1 / -1; }
+      .report-summary .net .amount { font-size:24px; }
+      .month-list { grid-template-columns:1fr; gap:10px; }
+
+      /* Admin yang punya akses: kartu per akun, bukan tabel lebar */
+      #access-panel .page-head { flex-direction:column; align-items:stretch; }
+      #access-panel .page-head .btn { width:100%; }
+      #admin-access-list.card { background:none; border:0; box-shadow:none; overflow:visible; }
+      #admin-access-list > .empty { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px 14px; }
+      .access-table { min-width:0; width:100%; }
+      .access-table thead { display:none; }
+      .access-table tbody { display:block; }
+      .access-table tbody tr {
+        display:flex; align-items:center; justify-content:space-between; gap:10px;
+        background:var(--card); border:1px solid var(--border); border-radius:12px;
+        padding:12px 14px; margin-bottom:10px;
+      }
+      .access-table td { display:block; padding:0; border:0; min-width:0; }
+      .access-table td:first-child { flex:1; font-size:14px; font-weight:600; overflow-wrap:anywhere; color:var(--text); font-family:inherit; }
+      .access-table td:last-child { flex-shrink:0; }
+    }
+
+    /* Tombol Laporan di detail pengguna */
+    .report-btn { display:flex; align-items:center; gap:14px; width:100%; margin-bottom:16px; padding:14px 18px; border-radius:12px; background:linear-gradient(135deg, var(--primary), var(--primary-dark)); color:#fff; font-size:16px; font-weight:700; text-align:left; box-shadow:0 6px 16px rgba(50,116,75,.28); transition:transform .15s, box-shadow .15s; }
+    .report-btn:hover { background:linear-gradient(135deg, var(--primary), var(--primary-dark)); transform:translateY(-1px); box-shadow:0 8px 20px rgba(50,116,75,.35); }
+    .report-btn .rb-icon { font-size:24px; line-height:1; }
+    .report-btn .rb-text { min-width:0; }
+    .report-btn .rb-text small { display:block; margin-top:2px; font-size:12px; font-weight:500; opacity:.85; }
+    .report-btn .rb-arrow { margin-left:auto; font-size:26px; line-height:1; }
+
+    /* Kartu statistik yang bisa diklik (Admin aktif) */
+    a.stat-link { display:block; color:inherit; transition:border-color .15s, transform .15s; }
+    a.stat-link:hover { border-color:#c9ddc8; transform:translateY(-2px); }
+
     /* Atribut hidden harus selalu menyembunyikan elemen */
     [hidden] { display: none !important; }
   </style>
@@ -370,7 +441,7 @@
   <!-- ========== HALAMAN LOGIN ========== -->
   <div class="login-wrap" id="login-view" hidden>
     <form class="card login-box" id="login-form">
-      <h1>Puyuhku Admin</h1>
+      <h1>Super Admin</h1>
       <p class="subtitle">Ruang kendali untuk aplikasi dan data bisnismu.</p>
 
       <label for="email">Email</label>
@@ -407,6 +478,10 @@
           <div class="num" id="stat-log">0</div>
           <div class="lbl">Aktivitas tercatat</div>
         </div>
+        <a class="card stat stat-link" href="#settings" title="Lihat pengaturan akses">
+          <div class="num" id="stat-admin">-</div>
+          <div class="lbl">Admin aktif</div>
+        </a>
       </div>
 
       <section class="dashboard-shortcuts">
@@ -452,7 +527,7 @@
 
       <div class="stats">
         <div class="card stat"><div class="num" id="stat-total">-</div><div class="lbl">Total pengguna</div></div>
-        <div class="card stat"><div class="num" id="stat-latest" style="font-size:18px;padding:6px 0">-</div><div class="lbl">Pendaftar terbaru</div></div>
+        <div class="card stat"><div class="num" id="stat-active">-</div><div class="lbl" id="stat-active-lbl">Pengguna aktif</div></div>
       </div>
 
       <div class="section-title">
@@ -508,6 +583,15 @@
 
       <div class="card" id="log-table" style="overflow-x:auto"></div>
       </section>
+
+      <!-- Halaman: Laporan pengguna (#laporan) -->
+      <section data-page="laporan" hidden>
+      <div class="report-top"><button class="btn secondary" id="report-back" type="button">&larr; Kembali</button></div>
+      <h2>Laporan</h2>
+      <p class="subtitle">Ringkasan pemasukan, pengeluaran, dan laba pengguna.</p>
+      <div class="card report-who" id="report-who"></div>
+      <div id="report-box"><div class="empty">Memuat...</div></div>
+      </section>
     </main>
   </div>
 
@@ -523,18 +607,25 @@
         <button class="close-btn" id="m-close" aria-label="Tutup">&times;</button>
       </div>
       <div class="modal-body">
+        <button class="btn report-btn" id="m-report" type="button">
+          <span class="rb-icon" aria-hidden="true">📊</span>
+          <span class="rb-text">Lihat Laporan<small>Laba bersih, pemasukan, pengeluaran, dan piutang</small></span>
+          <span class="rb-arrow" aria-hidden="true">›</span>
+        </button>
         <div class="tabs" id="tabs"></div>
         <div id="detail-box"><div class="empty">Memuat...</div></div>
       </div>
     </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="js/config.js?v=1"></script>
-  <script src="js/core.js?v=1"></script>
-  <script src="js/services.js?v=1"></script>
-  <script src="js/app.js?v=1"></script>
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script src="js/config.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/services.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

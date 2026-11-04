@@ -11,13 +11,14 @@ const PAGES = [
   { key: "puyuhku", label: "Data Puyuhku" },
   { key: "log", label: "Log Aktivitas" },
   { key: "settings", label: "⚙ Pengaturan" },
+  { key: "laporan", label: "Laporan" },
 ];
 
 function renderSidebar() {
   const sidebar = document.getElementById("sidebar");
   sidebar.innerHTML =
-    "<h1>Puyuhku Admin</h1>" +
-    PAGES.filter((p) => p.key !== "puyuhku")
+    "<h1>SUPER ADMIN</h1>" +
+    PAGES.filter((p) => p.key !== "puyuhku" && p.key !== "laporan")
       .map((p) => `<a href="#${p.key}" data-page="${p.key}">${p.label}</a>`)
       .join("");
   sidebar.addEventListener("click", (e) => {
@@ -62,6 +63,7 @@ function renderDashboardAlerts() {
 }
 
 // ===== Halaman Dashboard =====
+let adminCountCache = null; // jumlah admin, dimuat sekali supaya hemat baca Firestore
 function initDashboard() {
   const apps = window.SUPERADMIN_CONFIG.apps;
   const shortcuts = document.getElementById("dashboard-shortcuts");
@@ -84,6 +86,20 @@ function initDashboard() {
   document.getElementById("stat-apps").textContent = apps.length;
   document.getElementById("stat-api").textContent = apps.filter((a) => a.api || a.firebase).length;
   document.getElementById("stat-log").textContent = logs.length;
+
+  const adminEl = document.getElementById("stat-admin");
+  if (adminCountCache !== null) {
+    adminEl.textContent = adminCountCache;
+  } else {
+    adminEl.textContent = "-";
+    fb.db.collection("admins").get()
+      .then((snap) => {
+        adminCountCache = snap.docs.length;
+        adminEl.textContent = adminCountCache;
+        setDataAccessWarning("admins", null);
+      })
+      .catch((e) => setDataAccessWarning("admins", e, "memuat daftar admin"));
+  }
 
   const box = document.getElementById("recent-log");
   box.innerHTML = !logs.length
@@ -400,9 +416,10 @@ function initPuyuhku() {
       // Urutkan: yang paling baru daftar di atas
       allUsers.sort((a, b) => (getJoined(b)?.getTime() || 0) - (getJoined(a)?.getTime() || 0));
       document.getElementById("stat-total").textContent = allUsers.length;
-      const newest = allUsers[0];
-      document.getElementById("stat-latest").textContent =
-        newest ? (getEmail(newest) || getFarm(newest) || NO_EMAIL) : "-";
+      // Pengguna aktif = punya minimal satu catatan (penjualan, pengeluaran, panen, dll.)
+      const active = allUsers.filter((u) => SUBS.some((n) => Number(u[n]) > 0)).length;
+      document.getElementById("stat-active").textContent = active;
+      document.getElementById("stat-active-lbl").textContent = "Pengguna aktif (dari " + allUsers.length + ")";
       renderUsers();
     } catch (e) {
       setDataAccessWarning("users", e, "memuat daftar pengguna Puyuhku");
@@ -422,7 +439,6 @@ function initPuyuhku() {
     { key: "expense", label: "Pengeluaran", collection: "expenses" },
     { key: "sales", label: "Penjualan", collection: "sales" },
     { key: "incomes", label: "Pemasukan lain", collection: "incomes" },
-    { key: "profit", label: "Laporan" },
     { key: "production", label: "Panen", collection: "production" },
     { key: "damaged", label: "Telur pecah", collection: "damaged" },
     { key: "deaths", label: "Puyuh mati/afkir", collection: "deaths" },
@@ -457,6 +473,78 @@ function initPuyuhku() {
     return out;
   }
 
+  // ---- Halaman Laporan (halaman sendiri, #laporan) ----
+  let reportUid = null;
+  function renderReportPage() {
+    const uid = reportUid;
+    if (!uid) return false;
+    const who = document.getElementById("report-who");
+    const box = document.getElementById("report-box");
+    const u = allUsers.find((x) => x.id === uid) || { id: uid };
+    const email = getEmail(u), farm = getFarm(u), joined = getJoined(u);
+    who.innerHTML = `<div class="avatar">${escapeHtml((email || farm || "?").charAt(0).toUpperCase())}</div>
+      <div class="who-info"><div class="user-email">${escapeHtml(email || NO_EMAIL)}</div>
+      <div class="meta">${escapeHtml([farm, joined ? "Daftar " + joined.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : ""].filter(Boolean).join(" • "))}</div></div>`;
+
+    const data = subCache[uid] || {};
+    if (REPORT_COLS.some((n) => !data[n])) { box.innerHTML = '<div class="empty">Memuat laporan...</div>'; return true; }
+    if (REPORT_COLS.some((n) => data[n].error)) {
+      box.innerHTML = '<div class="empty">Gagal memuat data penjualan, pemasukan, atau pengeluaran.</div>';
+      return true;
+    }
+    const receipts = receiptsOf(data);
+    const expenses = data.expenses ? data.expenses.rows : [];
+    const allDated = [...receipts, ...expenses];
+    const months = [...new Set(allDated.map(rowDate).filter(Boolean).map(monthKey))].sort().reverse();
+    if (reportMonth !== "all" && !months.includes(reportMonth)) reportMonth = "all";
+    const inRows = filterByMonth(receipts);
+    const exRows = filterByMonth(expenses);
+    const incomeTotal = moneySum(inRows, "amount");
+    const expenseTotal = moneySum(exRows, "amount");
+    const net = incomeTotal - expenseTotal;
+    const receivable = (data.sales ? data.sales.rows : []).reduce((a, x) => a + Math.max(0, (Number(x.total) || 0) - salePaid(x)), 0);
+    const undated = allDated.filter((r) => !rowDate(r)).length;
+    const periodText = reportMonth === "all" ? "semua periode" : monthLabel(reportMonth);
+    const inMonth = (rows, m) => rows.filter((r) => { const d = rowDate(r); return d && monthKey(d) === m; });
+
+    box.innerHTML = `<div class="report-controls">
+        <label for="report-month">Periode</label>
+        <select id="report-month">
+          <option value="all"${reportMonth === "all" ? " selected" : ""}>Semua periode</option>
+          ${months.map((m) => `<option value="${escapeHtml(m)}"${m === reportMonth ? " selected" : ""}>${escapeHtml(monthLabel(m))}</option>`).join("")}
+        </select>
+        <p class="who">Menampilkan <b>${escapeHtml(periodText)}</b>: ${inRows.length} penerimaan, ${exRows.length} pengeluaran.${reportMonth !== "all" && undated ? ` ${undated} catatan tanpa tanggal tidak dihitung.` : ""}</p>
+      </div>
+      <div class="report-summary">
+        <div class="card net"><div class="lbl">Laba bersih</div><div class="amount">${escapeHtml(rp(net))}</div></div>
+        <div class="card income"><div class="lbl">Total pemasukan</div><div class="amount">${escapeHtml(rp(incomeTotal))}</div></div>
+        <div class="card expense"><div class="lbl">Total pengeluaran</div><div class="amount">${escapeHtml(rp(expenseTotal))}</div></div>
+        <div class="card recv"><div class="lbl">Piutang (semua waktu)</div><div class="amount">${escapeHtml(rp(receivable))}</div></div>
+      </div>
+      <p class="who report-note">Perhitungan sama dengan aplikasi: pemasukan = pembayaran yang sudah diterima + pemasukan lain; laba = pemasukan dikurangi pengeluaran. Piutang belum dihitung sebagai pemasukan.</p>
+      ${months.length ? `<div class="section-title"><h3>Rincian per bulan</h3></div>
+      <div class="month-list">${months.map((m) => {
+        const i = moneySum(inMonth(receipts, m), "amount"), e = moneySum(inMonth(expenses, m), "amount"), n = i - e;
+        return `<button type="button" class="card month-card${m === reportMonth ? " active" : ""}" data-month="${escapeHtml(m)}">
+          <span class="month-name">${escapeHtml(monthLabel(m))}</span>
+          <span class="month-net${n < 0 ? " neg" : ""}">${escapeHtml(rp(n))}</span>
+          <span class="month-sub"><span>Masuk <b>${escapeHtml(rp(i))}</b></span><span>Keluar <b>${escapeHtml(rp(e))}</b></span></span>
+        </button>`;
+      }).join("")}</div>` : ""}`;
+    return true;
+  }
+
+  function openReportPage(uid) {
+    reportUid = uid;
+    reportMonth = "all";
+    modal.hidden = true;
+    document.body.style.overflow = "";
+    selectedUid = null;
+    renderUsers();
+    Log.add("lihat_laporan", `Membuka laporan ${userLabel(uid)}`);
+    location.hash = "#laporan"; // pindah halaman; go() dipanggil oleh hashchange
+  }
+
   function renderTabs(uid) {
     const data = subCache[uid] || {};
     const buttons = TABS.filter((t) => !t.collection || SUBS.includes(t.collection)).map((tab) => {
@@ -476,43 +564,7 @@ function initPuyuhku() {
   function renderRecords(uid) {
     const box = document.getElementById("detail-box");
     const data = subCache[uid] || {};
-    if (activeSub === "profit") {
-      if (REPORT_COLS.some((n) => !data[n])) { box.innerHTML = '<div class="empty">Memuat ringkasan laba...</div>'; return; }
-      if (REPORT_COLS.some((n) => data[n].error)) {
-        box.innerHTML = '<div class="empty">Gagal memuat data penjualan, pemasukan, atau pengeluaran.</div>';
-        return;
-      }
-      const receipts = receiptsOf(data);
-      const expenses = data.expenses ? data.expenses.rows : [];
-      const allDated = [...receipts, ...expenses];
-      const months = [...new Set(allDated.map(rowDate).filter(Boolean).map(monthKey))].sort().reverse();
-      if (reportMonth !== "all" && !months.includes(reportMonth)) reportMonth = "all";
-      const inRows = filterByMonth(receipts);
-      const exRows = filterByMonth(expenses);
-      const incomeTotal = moneySum(inRows, "amount");
-      const expenseTotal = moneySum(exRows, "amount");
-      const net = incomeTotal - expenseTotal;
-      const receivable = (data.sales ? data.sales.rows : []).reduce((a, x) => a + Math.max(0, (Number(x.total) || 0) - salePaid(x)), 0);
-      const undated = allDated.filter((r) => !rowDate(r)).length;
-      const periodText = reportMonth === "all" ? "semua periode" : monthLabel(reportMonth);
-      box.innerHTML = `<div class="period-bar">
-        <div>
-          <label for="report-month">Periode</label>
-          <select id="report-month">
-            <option value="all"${reportMonth === "all" ? " selected" : ""}>Semua periode</option>
-            ${months.map((m) => `<option value="${escapeHtml(m)}"${m === reportMonth ? " selected" : ""}>${escapeHtml(monthLabel(m))}</option>`).join("")}
-          </select>
-        </div>
-        <p class="who">Menampilkan <b>${escapeHtml(periodText)}</b>: ${inRows.length} penerimaan, ${exRows.length} pengeluaran.${reportMonth !== "all" && undated ? ` ${undated} catatan tanpa tanggal tidak dihitung.` : ""}</p>
-      </div>
-      <div class="profit-summary">
-        <div class="card income"><div class="lbl">Total pemasukan</div><div class="amount">${escapeHtml(rp(incomeTotal))}</div></div>
-        <div class="card expense"><div class="lbl">Total pengeluaran</div><div class="amount">${escapeHtml(rp(expenseTotal))}</div></div>
-        <div class="card net"><div class="lbl">Laba bersih</div><div class="amount">${escapeHtml(rp(net))}</div></div>
-        <div class="card recv"><div class="lbl">Piutang (semua waktu)</div><div class="amount">${escapeHtml(rp(receivable))}</div></div>
-      </div><p class="who">Perhitungan sama dengan aplikasi: pemasukan = pembayaran yang sudah diterima + pemasukan lain; laba = pemasukan dikurangi pengeluaran. Piutang belum dihitung sebagai pemasukan.</p>`;
-      return;
-    }
+    if (activeSub === "profit") { box.innerHTML = '<div class="empty">Membuka halaman laporan...</div>'; return; }
 
     const tab = TABS.find((item) => item.key === activeSub);
     const collection = tab ? tab.collection : activeSub;
@@ -542,9 +594,11 @@ function initPuyuhku() {
     }
     pendingSub.delete(key);
     if (uid === selectedUid) { renderTabs(uid); renderRecords(uid); }
+    const rp_ = document.querySelector('[data-page="laporan"]');
+    if (uid === reportUid && rp_ && !rp_.hidden) renderReportPage();
   }
 
-  async function openUser(uid) {
+  async function openUser(uid, silent) {
     selectedUid = uid;
     const u = allUsers.find((x) => x.id === uid) || { id: uid };
     const d = getJoined(u);
@@ -561,7 +615,7 @@ function initPuyuhku() {
     renderUsers();
     renderTabs(uid);
     renderRecords(uid);
-    Log.add("lihat_data", `Melihat data ${userLabel(uid)}`);
+    if (!silent) Log.add("lihat_data", `Melihat data ${userLabel(uid)}`);
 
     if (!hasSubCacheFor(uid)) subCache[uid] = {};
     // Koleksi keuangan dimuat dulu; panen, telur pecah, dan puyuh mati dimuat saat tabnya dibuka.
@@ -588,12 +642,23 @@ function initPuyuhku() {
     const tab = TABS.find((x) => x.key === activeSub);
     if (tab && tab.collection) ensureSub(selectedUid, tab.collection);
   });
-  detailBox.addEventListener("change", (e) => {
-    if (e.target.id === "report-month" && selectedUid) {
-      reportMonth = e.target.value;
-      renderRecords(selectedUid);
-    }
+  const reportBox = document.getElementById("report-box");
+  reportBox.addEventListener("change", (e) => {
+    if (e.target.id === "report-month") { reportMonth = e.target.value; renderReportPage(); }
   });
+  reportBox.addEventListener("click", (e) => {
+    const c = e.target.closest("[data-month]");
+    if (!c) return;
+    reportMonth = reportMonth === c.dataset.month ? "all" : c.dataset.month;
+    renderReportPage();
+  });
+  document.getElementById("report-back").addEventListener("click", () => {
+    const uid = reportUid;
+    location.hash = "#puyuhku";
+    if (uid) openUser(uid, true);
+  });
+  document.getElementById("m-report").addEventListener("click", () => { if (selectedUid) openReportPage(selectedUid); });
+  reportPageRender = renderReportPage;
   document.getElementById("m-close").addEventListener("click", closeUser);
   modal.addEventListener("click", (e) => { if (e.target === modal) closeUser(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) closeUser(); });
@@ -604,7 +669,15 @@ function initPuyuhku() {
 
 // ===== Router =====
 const once = (fn) => { let done = false; return () => { if (!done) { done = true; fn(); } }; };
-const pageInit = { dashboard: initDashboard, apps: once(initApps), puyuhku: once(initPuyuhku), log: initLog, settings: () => {} };
+let reportPageRender = null; // diisi oleh initPuyuhku
+const pageInit = {
+  dashboard: initDashboard, apps: once(initApps), puyuhku: once(initPuyuhku), log: initLog, settings: () => {},
+  laporan: () => {
+    if (reportPageRender && reportPageRender()) return;
+    try { history.replaceState(null, "", "#puyuhku"); } catch (err) {}
+    go("puyuhku"); // dibuka langsung tanpa memilih pengguna -> kembali ke daftar
+  },
+};
 
 function go(page) {
   const h = page || location.hash.slice(1);
