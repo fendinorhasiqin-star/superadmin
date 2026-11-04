@@ -25,10 +25,15 @@ service cloud.firestore {
     match /{path=**}/expenses/{id}   { allow read: if isAdmin(); }
     match /{path=**}/production/{id} { allow read: if isAdmin(); }
 
-    // Daftar admin: hanya bisa diubah lewat Firebase Console
+    // Daftar admin: dokumen hanya dibuat/dihapus lewat Firebase Console.
+    // Admin hanya boleh mengisi field email pada dokumennya sendiri (untuk tampilan daftar akses).
     match /admins/{adminId} {
       allow read: if isAdmin();
-      allow write: if false;
+      allow create, delete: if false;
+      allow update: if isAdmin()
+        && request.auth.uid == adminId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['email'])
+        && request.resource.data.email == request.auth.token.email;
     }
   }
 }
