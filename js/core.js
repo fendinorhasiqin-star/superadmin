@@ -54,6 +54,11 @@ const Auth = (() => {
   async function isAdmin(user) {
     try {
       const snap = await fb.db.collection("admins").doc(user.uid).get();
+      // Simpan email admin ke dokumennya (dokumen dari Console biasanya belum punya email),
+      // supaya daftar akses admin bisa menampilkannya. Gagal menyimpan tidak mengganggu login.
+      if (snap.exists && user.email && snap.data().email !== user.email) {
+        fb.db.collection("admins").doc(user.uid).set({ email: user.email }, { merge: true }).catch(() => {});
+      }
       return snap.exists;
     } catch {
       return false;

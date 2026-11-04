@@ -173,11 +173,17 @@ async function loadAdminAccess() {
   const box = document.getElementById("admin-access-list");
   box.innerHTML = '<div class="empty">Memuat daftar admin...</div>';
   try {
+    const me = fb.auth.currentUser;
+    const adminLabel = (a, me) =>
+      a.email || (me && me.uid === a.uid && me.email) || a.name || a.nama || `UID: ${a.uid}`;
     const admins = (await fb.db.collection("admins").get()).docs.map((doc) => ({ ...doc.data(), uid: doc.id }));
     box.innerHTML = admins.length
       ? '<table class="access-table"><thead><tr><th>Akun admin</th><th>Status</th></tr></thead><tbody>' +
-        admins.map((admin) => `<tr><td>${escapeHtml(admin.email || admin.name || admin.nama || "(email belum tersimpan)")}</td><td><span class="badge ok" style="margin:0">FULL ACCESS</span></td></tr>`).join("") +
-        '</tbody></table>'
+        admins.map((admin) => `<tr><td>${escapeHtml(adminLabel(admin, me))}</td><td><span class="badge ok" style="margin:0">FULL ACCESS</span></td></tr>`).join("") +
+        '</tbody></table>' +
+        (admins.some((a) => !a.email)
+          ? '<p class="subtitle" style="margin-top:10px">Email admin lain tersimpan otomatis setelah ia login sekali.</p>'
+          : "")
       : '<div class="empty">Belum ada admin terdaftar.</div>';
   } catch (e) {
     const message = e.code === "permission-denied"
