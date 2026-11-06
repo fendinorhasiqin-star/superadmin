@@ -8,7 +8,7 @@ window.SUPERADMIN_CONFIG = {
   // Isi dengan Project URL dan anon (public) key dari Supabase -> Project Settings -> API.
   // JANGAN pernah memasukkan service_role key di sini.
   supabase: {
-    url: "https://mnkedbgfmflexflfzdnr.supabase.co/rest/v1/",
+    url: "https://mnkedbgfmflexflfzdnr.supabase.co",
     anonKey: "sb_publishable_JWxmpVkosiVuvDYjvxlYdg_XpkgqG0K",
   },
 
