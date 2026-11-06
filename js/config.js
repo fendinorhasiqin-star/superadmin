@@ -1,18 +1,15 @@
 // Konfigurasi superadmin.
 // File ini TIDAK berisi password, jadi aman di-commit.
-// Kunci Firebase memang bersifat publik (terbaca di setiap aplikasi web);
-// yang menjaga data tetap aman adalah Firestore Rules di Firebase Console.
+// Anon key Supabase memang bersifat publik (terbaca di setiap aplikasi web);
+// yang menjaga data tetap aman adalah Row Level Security (RLS) di Supabase.
 
 window.SUPERADMIN_CONFIG = {
-  // Project Firebase yang dipakai superadmin (sama dengan puyuhku)
-  firebase: {
-    apiKey: "AIzaSyAEL9Av_OrHW1zt-0REnZoymXM-Qeg5zfQ",
-    authDomain: "bisnis-puyuh.firebaseapp.com",
-    projectId: "bisnis-puyuh",
-    storageBucket: "bisnis-puyuh.firebasestorage.app",
-    messagingSenderId: "226784274230",
-    appId: "1:226784274230:web:2474888a57facb56117597",
-    measurementId: "G-CZ694MG0DX",
+  // Project Supabase yang dipakai superadmin (sama dengan aplikasi PuyuhKu).
+  // Isi dengan Project URL dan anon (public) key dari Supabase -> Project Settings -> API.
+  // JANGAN pernah memasukkan service_role key di sini.
+  supabase: {
+    url: "https://mnkedbgfmflexflfzdnr.supabase.co/rest/v1/",
+    anonKey: "sb_publishable_JWxmpVkosiVuvDYjvxlYdg_XpkgqG0K",
   },
 
   // Daftar aplikasi yang dikelola. Tambah satu objek per aplikasi.
@@ -28,17 +25,12 @@ window.SUPERADMIN_CONFIG = {
     {
       id: "puyuhku",
       name: "Puyuhku",
-      description: "Aplikasi bisnis puyuh (Firebase Auth + Firestore).",
+      description: "Aplikasi bisnis puyuh (Supabase Auth + Postgres).",
       // Isi dengan alamat aplikasi puyuhku kalau sudah online
-      url: "https://fendinorhasiqin-star.github.io/bisnispuyuh",
-      firebase: true,
-      // Subkoleksi di bawah users/{uid} (nama sesuai aplikasi.html PuyuhKu).
-      // Kalau menambah di sini, tambahkan juga aturannya di firestore.rules
-      // (termasuk aturan collection group untuk membaca lintas pengguna).
+      url: "https://fendinorhasiqin-star.github.io/bisnispuyuh/aplikasi.html",
+      supabase: true,
+      // Nilai kolom `coll` di tabel `records` (satu nilai per jenis catatan).
       subcollections: ["expenses", "sales", "incomes", "production", "damaged", "deaths"],
-      // Subkoleksi yang dipindai untuk menemukan daftar pengguna (lebih hemat read).
-      // "meta" berisi users/{uid}/meta/settings: email, tanggal daftar, dan nama peternakan.
-      discover: ["meta", "sales", "expenses", "production"],
     },
   ],
 };

@@ -40,10 +40,10 @@ const dataAccessWarnings = new Map();
 function setDataAccessWarning(key, error, context) {
   if (!error) {
     dataAccessWarnings.delete(key);
-  } else if (error.code === "permission-denied" || error.code === "unauthenticated") {
-    dataAccessWarnings.set(key, `Akses ditolak saat ${context}. Periksa akun admin dan Firestore Rules.`);
+  } else if (["42501", "PGRST301", "PGRST302"].includes(error.code) || error.status === 401 || error.status === 403) {
+    dataAccessWarnings.set(key, `Akses ditolak saat ${context}. Periksa akun admin dan kebijakan RLS Supabase.`);
   } else {
-    dataAccessWarnings.set(key, `Gagal ${context}. Periksa koneksi dan layanan Firebase.`);
+    dataAccessWarnings.set(key, `Gagal ${context}. Periksa koneksi dan layanan Supabase.`);
   }
   renderDashboardAlerts();
 }
@@ -63,7 +63,7 @@ function renderDashboardAlerts() {
 }
 
 // ===== Halaman Dashboard =====
-let adminCountCache = null; // jumlah admin, dimuat sekali supaya hemat baca Firestore
+let adminCountCache = null; // jumlah admin, dimuat sekali saja
 function initDashboard() {
   const apps = window.SUPERADMIN_CONFIG.apps;
   const shortcuts = document.getElementById("dashboard-shortcuts");
@@ -84,7 +84,7 @@ function initDashboard() {
   }).join("");
   const logs = Log.all();
   document.getElementById("stat-apps").textContent = apps.length;
-  document.getElementById("stat-api").textContent = apps.filter((a) => a.api || a.firebase).length;
+  document.getElementById("stat-api").textContent = apps.filter((a) => a.api || a.supabase).length;
   document.getElementById("stat-log").textContent = logs.length;
 
   const adminEl = document.getElementById("stat-admin");
@@ -92,9 +92,10 @@ function initDashboard() {
     adminEl.textContent = adminCountCache;
   } else {
     adminEl.textContent = "-";
-    fb.db.collection("admins").get()
-      .then((snap) => {
-        adminCountCache = snap.docs.length;
+    sb.from("admins").select("user_id", { count: "exact", head: true })
+      .then(({ count, error }) => {
+        if (error) throw error;
+        adminCountCache = count ?? 0;
         adminEl.textContent = adminCountCache;
         setDataAccessWarning("admins", null);
       })
@@ -173,10 +174,12 @@ async function loadAdminAccess() {
   const box = document.getElementById("admin-access-list");
   box.innerHTML = '<div class="empty">Memuat daftar admin...</div>';
   try {
-    const me = fb.auth.currentUser;
+    const me = Auth.currentUser;
     const adminLabel = (a, me) =>
-      a.email || (me && me.uid === a.uid && me.email) || a.name || a.nama || `UID: ${a.uid}`;
-    const admins = (await fb.db.collection("admins").get()).docs.map((doc) => ({ ...doc.data(), uid: doc.id }));
+      a.email || (me && me.id === a.uid && me.email) || a.name || a.nama || `UID: ${a.uid}`;
+    const { data: adminRows, error: adminErr } = await sb.from("admins").select("user_id,email");
+    if (adminErr) throw adminErr;
+    const admins = (adminRows || []).map((r) => ({ email: r.email, uid: r.user_id }));
     box.innerHTML = admins.length
       ? '<table class="access-table"><thead><tr><th>Akun admin</th><th>Status</th></tr></thead><tbody>' +
         admins.map((admin) => `<tr><td>${escapeHtml(adminLabel(admin, me))}</td><td><span class="badge ok" style="margin:0">FULL ACCESS</span></td></tr>`).join("") +
@@ -186,9 +189,9 @@ async function loadAdminAccess() {
           : "")
       : '<div class="empty">Belum ada admin terdaftar.</div>';
   } catch (e) {
-    const message = e.code === "permission-denied"
-      ? "Akses baca ditolak. Firestore Rules perlu mengizinkan admin membaca daftar koleksi admins."
-      : "Daftar admin gagal dimuat. Periksa koneksi dan konfigurasi Firebase.";
+    const message = ["42501", "PGRST301"].includes(e.code)
+      ? "Akses baca ditolak. Kebijakan RLS perlu mengizinkan admin membaca tabel admins."
+      : "Daftar admin gagal dimuat. Periksa koneksi dan konfigurasi Supabase.";
     box.innerHTML = `<div class="empty">${escapeHtml(message)}</div>`;
   }
 }
